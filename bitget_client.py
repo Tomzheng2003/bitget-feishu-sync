@@ -57,24 +57,4 @@ def get_history_positions():
         return []
 
 
-# 测试代码 (仅在直接运行此文件时执行)
-if __name__ == "__main__":
-    print("=" * 50)
-    print("Bitget Client 测试")
-    print("=" * 50)
-    
-    print(f"\nAPI Key: {API_KEY[:10]}..." if API_KEY else "API Key: 未设置")
-    
-    print("\n[测试] 获取当前持仓...")
-    positions = get_positions()
-    print(f"当前持仓数量: {len(positions)}")
-    if positions:
-        for p in positions[:3]:  # 只显示前3个
-            print(f"  - {p.get('symbol')}: {p.get('holdSide')} x {p.get('total')}")
-    
-    print("\n[测试] 获取历史仓位...")
-    history = get_history_positions()
-    print(f"历史仓位数量: {len(history)}")
-    if history:
-        for h in history[:3]:  # 只显示前3个
-            print(f"  - {h.get('symbol')}: PnL={h.get('pnl')}, ID={h.get('positionId')}")
+

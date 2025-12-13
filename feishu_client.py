@@ -116,26 +116,4 @@ def update_record(record_id: str, fields: dict) -> bool:
         return False
 
 
-# 测试代码 (仅在直接运行此文件时执行)
-if __name__ == "__main__":
-    print("=" * 50)
-    print("飞书 Client 测试")
-    print("=" * 50)
-    
-    print(f"\nApp ID: {APP_ID}")
-    print(f"App Token: {APP_TOKEN}")
-    print(f"Table ID: {TABLE_ID}")
-    
-    print("\n[测试] 创建测试记录...")
-    test_fields = {"币种": "TEST_COIN"}
-    record_id = create_record(test_fields)
-    print(f"返回的 record_id: {record_id}")
-    
-    if record_id:
-        print("\n[测试] 更新测试记录...")
-        success = update_record(record_id, {"入场价": 12345.67})
-        print(f"更新结果: {success}")
-    
-    print("\n[测试] 查询不存在的记录...")
-    result = find_record("不存在的ID")
-    print(f"查询结果: {result}")
+
