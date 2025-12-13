@@ -1,0 +1,13 @@
+# Environment Variables (Secrets)
+.env
+
+# Runtime Data
+state.json
+__pycache__/
+*.pyc
+
+# System
+.DS_Store
+.venv/
+.idea/
+.vscode/
