@@ -14,5 +14,6 @@ __pycache__/
 
 # Docker
 config.env
+data/
 docker/data/
 docker/logs/
