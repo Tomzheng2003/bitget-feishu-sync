@@ -19,6 +19,10 @@ services:
       # 持久化日志目录
       - ./data/logs:/app/logs
     
+    # host 网络模式：直接使用群晖宿主机的网络栈
+    # 这样可以直接访问 127.0.0.1 (如果代理在宿主机) 和局域网 IP
+    network_mode: "host"
+    
     # 从配置文件读取环境变量
     env_file:
       - config.env
