@@ -1,6 +1,5 @@
-# Bitget-Feishu Trade Sync Docker Image
-# 基础镜像：Python 3.9 精简版
-FROM python:3.9-slim
+# 基础镜像：Python 3.9 精简版 (使用 DaoCloud 国内镜像源)
+FROM docker.m.daocloud.io/library/python:3.9-slim
 
 # 设置工作目录
 WORKDIR /app
