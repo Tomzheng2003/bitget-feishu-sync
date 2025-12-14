@@ -132,3 +132,56 @@
 - ✅ 历史记录成功回填杠杆，ROE 计算准确
 - ✅ 收益额与 APP 显示一致（包含手续费）
 - ✅ 数据无重复，更新机制正常工作
+
+---
+
+## 阶段 5：Docker 容器化部署 ✅
+
+**完成时间**：2025-12-14
+
+### 完成内容
+
+1.  **Step 5.1 创建 Docker 部署目录**
+    - 新建 `docker/` 目录，与主代码隔离
+    - 包含 `Dockerfile`、`docker-compose.yml`、`.env.example`、`README.md`
+
+2.  **Step 5.2 配置 Dockerfile**
+    - 基于 `python:3.9-slim` 镜像
+    - 配置时区 `Asia/Shanghai`
+    - 日志同时输出到控制台和文件
+
+3.  **Step 5.3 配置 docker-compose.yml**
+    - `restart: always` 自动重启策略
+    - 卷挂载：`state.json` 和 `logs/` 目录持久化
+    - 环境变量通过 `.env` 文件注入
+    - 日志限制：最大 10MB x 3 个文件
+
+4.  **Step 5.4 本地 Mac Docker 测试**
+
+5.  **Step 5.5 配置 Git 部署**
+    - 更新 `.gitignore` 排除 `config.env` 和 `docker/data/`
+    - 更新部署文档，增加 Git 拉取方式
+    - 优化 `docker-compose.yml` 适配群晖路径结构
+
+### 验证结果
+
+- ✅ 镜像构建成功（约 55s）
+- ✅ 容器自动启动运行
+- ✅ API 连接正常（Bitget + 飞书）
+- ✅ 日志可通过 `docker-compose logs -f` 或 `data/logs/sync.log` 查看
+- ⚠️ 偶现 SSL 临时错误，程序可自动恢复（无需处理）
+
+### 部署文件结构
+
+```
+docker/
+├── Dockerfile
+├── docker-compose.yml
+├── .env.example
+├── .env              # 用户配置（不提交）
+├── README.md
+└── data/
+    ├── state.json    # 同步状态
+    └── logs/
+        └── sync.log  # 运行日志
+```

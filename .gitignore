@@ -11,3 +11,8 @@ __pycache__/
 .venv/
 .idea/
 .vscode/
+
+# Docker
+config.env
+docker/data/
+docker/logs/
