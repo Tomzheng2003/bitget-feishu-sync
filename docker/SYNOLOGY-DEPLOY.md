@@ -33,8 +33,9 @@
 1. 确保代码已推送到 GitHub
 2. 打开群晖 **Container Manager** → **项目** → **创建**
 3. **来源**选择：**Git**
-4. 填写 GitHub 仓库地址 (例如 `https://github.com/user/trade.git`)
-5. 如果是私有仓库，需要填写用户名和 Access Token
+4. 填写 GitHub 仓库地址 (例如 `https://github.com/Tomzheng2003/bitget-feishu-sync.git`)
+5. **分支 (Branch)**：选择 **`docker-support`** (重要！)
+6. 如果是私有仓库，需要填写用户名和 Access Token
 6. **构建路径**：选择代码被拉取到的目录（例如 `/docker/trade`）
 7. 它可以自动拉取并构建！
 
