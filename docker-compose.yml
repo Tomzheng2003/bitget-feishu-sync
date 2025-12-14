@@ -15,9 +15,9 @@ services:
     # 挂载卷
     volumes:
       # 持久化状态文件
-      - ./docker/data/state.json:/app/state.json
+      - ./data/state.json:/app/state.json
       # 持久化日志目录
-      - ./docker/data/logs:/app/logs
+      - ./data/logs:/app/logs
     
     # 从配置文件读取环境变量
     env_file:
@@ -27,6 +27,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Asia/Shanghai
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
     
     # 日志配置
     logging:
