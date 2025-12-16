@@ -24,5 +24,5 @@ RUN mkdir -p /app/logs
 # 设置 Python 输出不缓冲（实时查看日志）
 ENV PYTHONUNBUFFERED=1
 
-# 启动命令：同时输出到控制台和日志文件
-CMD ["sh", "-c", "python -u main.py 2>&1 | tee -a /app/logs/sync.log"]
+# Start command: log rotation is handled by python app
+CMD ["python", "-u", "main.py"]

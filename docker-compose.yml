@@ -33,6 +33,7 @@ services:
       - TZ=Asia/Shanghai
       - HTTP_PROXY=${HTTP_PROXY}
       - HTTPS_PROXY=${HTTPS_PROXY}
+      - POLL_INTERVAL=${POLL_INTERVAL}
     
     # 日志配置
     logging:

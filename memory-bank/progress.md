@@ -160,8 +160,12 @@
 
 5.  **Step 5.5 配置 Git 部署**
     - 更新 `.gitignore` 排除 `config.env` 和 `docker/data/`
-    - 更新部署文档，增加 Git 拉取方式
-    - 优化 `docker-compose.yml` 适配群晖路径结构
+
+6.  **Step 6: API 用量优化 (v2.0 发布)**
+    - [x] 智能日志模式：事件驱动更新，API 消耗减少 99%
+    - [x] 日志管理：按天轮转 + 7天保留，解决磁盘占用问题
+    - [x] 极速轮询：10秒间隔，捕捉瞬间开仓数据
+    - [x] 隐私安全：完善 .gitignore，确保 config.env 不被提交
 
 ### 验证结果
 
