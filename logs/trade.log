@@ -1,0 +1,55 @@
+2025-12-17 23:15:28,378 [INFO] 启动双交易所同步 (Bitget + Binance)
+2025-12-17 23:15:28,379 [INFO] 轮询间隔: 10 秒
+2025-12-17 23:15:28,857 [INFO]   [Bitget] 🟢 新增持仓: AAVEUSDT
+2025-12-17 23:15:33,445 [INFO]   [Bitget] 🟢 新增持仓: BTCUSDT
+2025-12-17 23:15:36,842 [INFO]   [Bitget] 🟢 新增持仓: ASTERUSDT
+2025-12-17 23:15:40,241 [INFO]   [Bitget] 🟢 新增持仓: ETHUSDT
+2025-12-17 23:15:43,622 [INFO]   [Bitget] 🟢 新增持仓: PIEVERSEUSDT
+2025-12-17 23:15:46,126 [INFO] 程序停止
+2025-12-17 23:17:01,544 [INFO] 启动双交易所同步 (Bitget + Binance)
+2025-12-17 23:17:01,544 [INFO] 轮询间隔: 10 秒
+2025-12-17 23:17:01,993 [INFO]   [Bitget] 🟢 新增持仓: AAVEUSDT
+2025-12-17 23:17:06,162 [INFO]   [Bitget] 🟢 新增持仓: BTCUSDT
+2025-12-17 23:17:09,618 [INFO]   [Bitget] 🟢 新增持仓: ASTERUSDT
+2025-12-17 23:17:12,859 [INFO]   [Bitget] 🟢 新增持仓: ETHUSDT
+2025-12-17 23:17:18,070 [INFO]   [Bitget] 🔵 订单完结: PIEVERSEUSDT
+2025-12-17 23:17:21,350 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:17:24,805 [INFO]   [Bitget] 🟣 补录历史: BTCUSDT
+2025-12-17 23:17:28,134 [INFO]   [Bitget] 🟣 补录历史: SWARMSUSDT
+2025-12-17 23:17:31,754 [INFO]   [Bitget] 🟣 补录历史: XRPUSDT
+2025-12-17 23:17:34,967 [INFO]   [Bitget] 🟣 补录历史: BEATUSDT
+2025-12-17 23:17:38,433 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:17:41,812 [INFO]   [Bitget] 🟣 补录历史: LIGHTUSDT
+2025-12-17 23:17:44,952 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:17:48,088 [INFO]   [Bitget] 🟣 补录历史: BCHUSDT
+2025-12-17 23:17:51,382 [INFO]   [Bitget] 🟣 补录历史: STOUSDT
+2025-12-17 23:17:54,727 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:17:58,067 [INFO]   [Bitget] 🟣 补录历史: BTCUSDT
+2025-12-17 23:18:01,184 [INFO]   [Bitget] 🟣 补录历史: DOGEUSDT
+2025-12-17 23:18:04,387 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:18:07,748 [INFO]   [Bitget] 🟣 补录历史: PIPPINUSDT
+2025-12-17 23:18:11,133 [INFO]   [Bitget] 🟣 补录历史: PIEVERSEUSDT
+2025-12-17 23:18:15,695 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:18:19,030 [INFO]   [Bitget] 🟣 补录历史: ICNTUSDT
+2025-12-17 23:18:22,419 [INFO]   [Bitget] 🟣 补录历史: ETHUSDT
+2025-12-17 23:18:24,859 [INFO]   [Binance] 🟢 新增持仓: 币安人生USDT
+2025-12-17 23:18:28,260 [INFO]   [Binance] 🟢 新增持仓: BCHUSDT
+2025-12-17 23:18:31,574 [INFO]   [Binance] 🟢 新增持仓: SENTUSDT
+2025-12-17 23:18:36,712 [INFO]   [Binance] 🟣 补录历史: SENTUSDT
+2025-12-17 23:18:39,998 [INFO]   [Binance] 🟣 补录历史: JELLYJELLYUSDT
+2025-12-17 23:18:43,293 [INFO]   [Binance] 🟣 补录历史: JELLYJELLYUSDT
+2025-12-17 23:18:46,516 [INFO]   [Binance] 🟣 补录历史: LIGHTUSDT
+2025-12-17 23:18:49,972 [INFO]   [Binance] 🟣 补录历史: BTCUSDT
+2025-12-17 23:18:53,316 [INFO]   [Binance] 🟣 补录历史: ETHUSDT
+2025-12-17 23:18:56,855 [INFO]   [Binance] 🟣 补录历史: PYTHUSDT
+2025-12-17 23:19:00,020 [INFO]   [Binance] 🟣 补录历史: ETHUSDT
+2025-12-17 23:19:03,140 [INFO]   [Binance] 🟣 补录历史: BTCUSDT
+2025-12-17 23:19:06,953 [INFO]   [Binance] 🟣 补录历史: BTCUSDT
+2025-12-17 23:19:10,556 [INFO]   [Binance] 🟣 补录历史: GRTUSDT
+2025-12-17 23:19:13,904 [INFO]   [Binance] 🟣 补录历史: GRTUSDT
+2025-12-17 23:19:17,097 [INFO]   [Binance] 🟣 补录历史: TRUTHUSDT
+2025-12-17 23:19:20,318 [INFO]   [Binance] 🟣 补录历史: TRUMPUSDT
+2025-12-17 23:19:23,715 [INFO]   [Binance] 🟣 补录历史: SENTUSDT
+2025-12-17 23:19:27,012 [INFO]   [Binance] 🟣 补录历史: SENTUSDT
+2025-12-17 23:19:30,474 [INFO]   [Binance] 🟣 补录历史: 币安人生USDT
+2025-12-17 23:22:00,696 [INFO] 程序停止

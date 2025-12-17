@@ -44,7 +44,14 @@ def get_history_positions():
     返回已平仓的仓位历史记录
     """
     try:
-        params = {"productType": "USDT-FUTURES"}
+        import time
+        # Bitget 默认只查7天，我们需要30天
+        start_time = int((time.time() - 30 * 24 * 3600) * 1000)
+        params = {
+            "productType": "USDT-FUTURES",
+            "startTime": str(start_time),
+            "limit": 100 # 增加条数限制到最大100 (Int)
+        }
         response = client.get("/api/v2/mix/position/history-position", params)
         
         if response.get("code") == "00000":

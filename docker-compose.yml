@@ -5,37 +5,39 @@ services:
   trade-sync:
     # 从当前目录构建镜像
     build: .
-    
+
     # 容器名称
     container_name: bitget-feishu-sync
-    
+
     # 自动重启策略
     restart: always
-    
+
     # 挂载卷
     volumes:
-      # 持久化状态文件
-      - ./data/state.json:/app/state.json
-      # 持久化日志目录
-      - ./data/logs:/app/logs
-    
-    # host 网络模式：直接使用群晖宿主机的网络栈
-    # 这样可以直接访问 127.0.0.1 (如果代理在宿主机) 和局域网 IP
-    network_mode: "host"
-    
+      # 挂载整个 data 目录 (包含 state.json 和 logs)
+      # 注意：代码里 STATE_FILE 必须指向 data/state.json
+      # logs 也在 data/logs，所以这一行挂载足够了，下面的可以去掉或者保留也没事(如果是子目录)
+      # 最好统一成挂载 /app/data
+      - ./data:/app/data
+
+    # VPS 网络优化: 使用默认 Bridge + 明确 DNS
+    # network_mode: "host"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
     # 从配置文件读取环境变量
     env_file:
       - config.env
-    
+
     # 额外环境变量
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Asia/Shanghai
-      - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_PROXY=${HTTPS_PROXY}
-      - POLL_INTERVAL=${POLL_INTERVAL}
-    
-    # 日志配置
+      # 移除代理覆盖，完全依赖 config.env，防止覆盖为空
+      # - POLL_INTERVAL=${POLL_INTERVAL}
+
+      # 日志配置
     logging:
       driver: "json-file"
       options:

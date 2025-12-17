@@ -116,4 +116,53 @@ def update_record(record_id: str, fields: dict) -> bool:
         return False
 
 
+def get_all_records() -> dict:
+    """
+    Step 2.5: 批量获取所有记录
+    遍历整个表格，构建 positionId -> CacheData 的映射
+    用于程序启动时快速建立缓存，避免 N+1 次 API 查询
+    """
+    print("[飞书] 正在全量同步表格数据以建立缓存...")
+    cache_map = {}
+    page_token = ""
+    has_more = True
+    
+    try:
+        while has_more:
+            request = ListAppTableRecordRequest.builder() \
+                .app_token(APP_TOKEN) \
+                .table_id(TABLE_ID) \
+                .page_size(100) \
+                .page_token(page_token) \
+                .build()
+            
+            response = client.bitable.v1.app_table_record.list(request)
+            
+            if response.success():
+                items = response.data.items or []
+                for item in items:
+                    fields = item.fields
+                    pid = fields.get("positionId")
+                    if pid:
+                        # 提取构建缓存所需的数据
+                        cache_map[pid] = {
+                            "record_id": item.record_id,
+                            "entry_price": float(fields.get("入场价", 0)),
+                            "leverage": int(fields.get("杠杆", 0))
+                        }
+                
+                has_more = response.data.has_more
+                page_token = response.data.page_token
+                print(f"[飞书] 已加载 {len(cache_map)} 条记录...")
+            else:
+                print(f"[飞书] 列表获取失败: {response.code} - {response.msg}")
+                break
+                
+        print(f"[飞书] 缓存建立完成，共 {len(cache_map)} 条记录")
+        return cache_map
+    except Exception as e:
+        print(f"[飞书] 批量获取异常: {e}")
+        return {}
+
+
 

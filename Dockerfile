@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY bitget/ ./bitget/
 COPY main.py .
 COPY bitget_client.py .
+COPY binance_client.py .
 COPY feishu_client.py .
 
 # 创建日志目录
