@@ -1,76 +1,40 @@
-# 项目架构说明
+# 项目架构说明 (v4.8)
 
 ## 目录结构
 
 ```
 trade/
-├── main.py              # 主程序入口
+├── main.py              # 主程序 (319行)
 ├── bitget_client.py     # Bitget API 封装
+├── binance_client.py    # Binance API 封装 (已禁用)
 ├── feishu_client.py     # 飞书 API 封装
-├── requirements.txt     # Python 依赖清单
-├── .env                 # 环境变量配置（不提交到 Git）
-├── state.json           # 同步状态存储（运行时生成）
+├── requirements.txt     # Python 依赖
+├── config.env           # 环境变量 (不提交 Git)
+├── Dockerfile           # Docker 镜像配置
+├── docker-compose.yml   # Docker 编排配置
 ├── bitget/              # Bitget 官方 SDK
-├── memory-bank/         # 项目文档
-├── feature-implementation.md # 功能规划
-├── feishu-api/          # 飞书 API 参考文档
-└── README.md            # 项目使用说明
+├── data/                # 运行时数据 (Docker挂载)
+│   ├── state.json       # 同步状态缓存
+│   └── logs/            # 日志文件
+└── memory-bank/         # 项目文档
 ```
 
 ---
 
-## 文件说明
+## 核心模块
 
 ### main.py
-主程序入口，负责：
-- 加载状态文件
-- 协调同步流程
-- 实现轮询循环（每 30 秒）
-- 处理程序退出
-
-### bitget_client.py
-Bitget 交易所 API 封装，负责：
-- 加载 Bitget API 凭据
-- 初始化 Bitget 客户端
-- `get_positions()` - 获取当前持仓
-- `get_history_positions()` - 获取历史仓位
+- **持仓监控**: 检测新开仓 → 自动创建飞书记录
+- **平仓同步**: 检测平仓 → 更新飞书记录为"盈利/亏损"
+- **智能关联 (v4.6)**: 3秒时间窗口修复 ID 漂移
+- **不碰原则 (v4.7)**: 未知杠杆时不写入杠杆/ROE
+- **只更新原则 (v4.8)**: 历史记录只更新，不创建
 
 ### feishu_client.py
-飞书多维表格 API 封装，负责：
-- 加载飞书应用凭据
-- 初始化飞书客户端
-- `create_record()` - 创建表格记录
-- `find_record()` - 查询记录
-- `update_record()` - 更新记录
-
-### bitget/
-Bitget 官方 Python SDK，包含：
-- `bitget_api.py` - 基础 API 类
-- `client.py` - HTTP 客户端封装
-- `v1/` - V1 版本 API
-- `v2/` - V2 版本 API（本项目使用）
-- `ws/` - WebSocket 支持
-
-### .env
-环境变量配置文件：
-```
-BITGET_API_KEY      # Bitget API 密钥
-BITGET_SECRET_KEY   # Bitget 密钥
-BITGET_PASSPHRASE   # Bitget 口令
-
-FEISHU_APP_ID       # 飞书应用 ID
-FEISHU_APP_SECRET   # 飞书应用密钥
-FEISHU_APP_TOKEN    # 多维表格 Token
-FEISHU_TABLE_ID     # 数据表 ID
-```
-
-### state.json
-运行时生成的状态文件：
-- 记录已同步的 `synced_ids` 集合
-- `pos_metadata` 缓存：
-  - 存储持仓时的杠杆 (`leverage`) 和保证金 (`marginSize`)
-  - 即使仓位平仓后，也能从缓存回填杠杆信息
-- JSON 格式，人类可读
+- `get_all_records()` - 批量获取所有记录 (启动时缓存)
+- `create_record()` - 创建新记录
+- `update_record()` - 更新现有记录
+- `find_record()` - 按 positionId 查询
 
 ---
 
@@ -78,35 +42,26 @@ FEISHU_TABLE_ID     # 数据表 ID
 
 ```
 Bitget API  ──►  bitget_client.py  ──►  main.py  ──►  feishu_client.py  ──►  飞书表格
-                                            │
-                                            ▼
-                                       state.json
+                                           │
+                                           ▼
+                                      data/state.json (缓存)
 ```
 
 ---
 
-## Bitget API 响应结构
+## 状态缓存结构 (state.json)
 
-### 当前持仓 (all-position)
 ```json
 {
-  "symbol": "BTCUSDT",
-  "holdSide": "long",
-  "openPriceAvg": "90405.8",
-  "total": "0.0032",
-  "leverage": "10",
-  "unrealizedPL": "0.056"
+  "feishu_cache": {
+    "Bitget_BTCUSDT_long_1734567890123": {
+      "record_id": "recXXXXXX",
+      "entry_price": 95000.5,
+      "leverage": 10
+    }
+  },
+  "synced_ids": ["..."],
+  "finalized_ids": ["..."],
+  "last_sync_time": "2025-12-21 03:00:00"
 }
 ```
-
-### 历史仓位 (history-position)
-```json
-{
-  "positionId": "1383079723100946434",  // 唯一标识
-  "symbol": "ZECUSDT",
-  "holdSide": "short",
-  "openAvgPrice": "455.48",
-  "closeAvgPrice": "473.97",
-  "pnl": "-7.18993",
-  "netProfit": "-7.61832118"
-}

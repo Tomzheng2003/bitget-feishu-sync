@@ -112,8 +112,7 @@ def format_duration(start_ms, end_ms):
         else: return f"{seconds // 86400}d {(seconds % 86400) // 3600}h"
     except: return ""
 
-# 交易所配置列表
-# 交易所配置列表
+# 交易所配置
 EXCHANGES = [
     {"name": "Bitget", "client": bitget_client},
     # {"name": "Binance", "client": binance_client} # 暂时关闭币安，专注于 Bitget 稳定性
@@ -180,8 +179,7 @@ def sync_tasks():
                 "持仓时间": format_duration(c_time_ms, int(time.time() * 1000)) + " (ing)"
             }
             
-            # Smart Journal Logic
-            # Smart Journal Logic
+            # Smart Journal: 检查是否已存在
             cached_data = feishu_cache.get(unique_id)
             if not cached_data:
                 # Case 1: 全新持仓 -> 必须创建
@@ -217,7 +215,7 @@ def sync_tasks():
 
     # 保存缓存状态 (Open Position loop end)
     
-        # --- 2. 历史记录 ---
+        # --- 2. 历史记录 (只更新，不创建) ---
         try:
             history_list = client.get_history_positions()
         except Exception as e:
@@ -228,46 +226,44 @@ def sync_tasks():
         
         for pos in history_list:
             unique_id = get_unique_id(ex_name, pos)
-            if unique_id in finalized_ids: continue
-            
-            c_time_ms = int(pos.get("ctime") or pos.get("cTime") or 0)
-            u_time_ms = int(pos.get("utime") or pos.get("uTime") or 0)
-            # 1. 提取 PnL (Gross Profit)
-            pnl = float(pos.get("pnl", 0))
-
-            # 2. 计算总手续费 (开仓费 + 平仓费 + 资金费) - 通常为负数
-            total_fee = float(pos.get("openFee", 0)) + float(pos.get("closeFee", 0)) + float(pos.get("totalFunding", 0))
-            
-            # 3. 计算净收益 (Net Profit) = PnL + Total Fee
-            # Bitget 的 netProfit 字段通常已经是净值，但为了确保万无一失，我们手动算
-            final_profit = pnl + total_fee
-
-            # === 核心逻辑: 尝试关联 Holding 记录以获取杠杆信息 ===
-            # === 核心逻辑: 尝试关联 Holding 记录以获取杠杆信息 ===
-            cached_data = feishu_cache.get(unique_id, {})
-            cached_leverage = cached_data.get("leverage", 0)
-            
-            # 如果缓存没有，且是 Binance (未来备用)，尝试去找 Holding
-            if not cached_leverage and ex_name == "Binance":
-                 holding_id = f"Binance_{pos['symbol']}_{pos['holdSide']}_HOLDING"
-                 if holding_id in feishu_cache:
-                     cached_leverage = feishu_cache[holding_id].get("leverage", 0)
-
-            # 严格模式: 如果不知道杠杆(cached_leverage == 0)，说明这是机器人未追踪过的历史数据
-            # 为了防止覆盖用户手动填写的正确数据，直接跳过处理
-            if cached_leverage == 0:
-                # log_info(f"[{ex_name}] ⏭️ 跳过未追踪历史: {pos.get('symbol')} (无杠杆信息)")
+            if unique_id in finalized_ids:
                 continue
             
-            # 计算 ROE (使用净收益)
+            # === Step 1: 尝试找到飞书中对应的记录 ===
+            cached_data = feishu_cache.get(unique_id, {})
+            record_id = cached_data.get("record_id")
+            cached_leverage = cached_data.get("leverage", 0)
             
-            # 计算 ROE (使用净收益)
-            roe = 0
-            open_val = float(pos.get("openAvgPrice", 0)) * float(pos.get("openTotalPos", 0) or pos.get("size", 0))
-            if open_val > 0:
-                margin = open_val / cached_leverage
-                roe = final_profit / margin
-
+            # 智能关联 (v4.6): 如果 ID 没匹配上，尝试用时间戳模糊匹配
+            if not record_id:
+                current_ctime = int(pos.get("ctime") or pos.get("cTime") or 0)
+                for cid, cdata in feishu_cache.items():
+                    if not cdata.get("record_id"):
+                        continue
+                    if not cid.startswith(f"{ex_name}_{pos['symbol']}_{pos['holdSide']}"):
+                        continue
+                    try:
+                        cached_ctime = int(cid.split("_")[-1])
+                        if abs(cached_ctime - current_ctime) < 3000:  # 3秒内视为同一单
+                            log_info(f"[{ex_name}] 🔗 ID修复: 时间差 {abs(cached_ctime - current_ctime)}ms")
+                            cached_data = cdata
+                            record_id = cdata.get("record_id")
+                            cached_leverage = cdata.get("leverage", 0)
+                            break
+                    except:
+                        continue
+            
+            # === Step 2: 如果飞书里没有这条记录，跳过 (不创建新记录) ===
+            if not record_id:
+                continue
+            
+            # === Step 3: 构造更新数据 ===
+            c_time_ms = int(pos.get("ctime") or pos.get("cTime") or 0)
+            u_time_ms = int(pos.get("utime") or pos.get("uTime") or 0)
+            pnl = float(pos.get("pnl", 0))
+            total_fee = float(pos.get("openFee", 0)) + float(pos.get("closeFee", 0)) + float(pos.get("totalFunding", 0))
+            final_profit = pnl + total_fee
+            
             fields = {
                 "交易所": ex_name,
                 "开仓时间": c_time_ms,
@@ -275,55 +271,29 @@ def sync_tasks():
                 "方向": "多" if pos.get("holdSide") == "long" else "空",
                 "入场价": float(pos.get("openAvgPrice", 0)),
                 "出场价": float(pos.get("closeAvgPrice", 0)),
-                "收益额": final_profit, # 确认是净收益
-                "收益率": roe,
+                "收益额": final_profit,
                 "手续费": total_fee,
                 "状态": "盈利" if final_profit > 0 else "亏损",
-                "positionId": unique_id, # 最终 ID
+                "positionId": unique_id,
                 "平仓时间": u_time_ms,
                 "持仓时间": format_duration(c_time_ms, u_time_ms),
-                "杠杆": int(cached_leverage)
             }
-    
-            # === 核心逻辑: 尝试关联 Holding 记录 ===
-            record_id = None
             
-            # 1. 先查缓存里的 History ID (常规)
-            cached_data = feishu_cache.get(unique_id, {})
-            record_id = cached_data.get("record_id")
+            # === Step 4: 只有知道杠杆时才写入杠杆和收益率 ===
+            if cached_leverage > 0:
+                open_val = float(pos.get("openAvgPrice", 0)) * float(pos.get("openTotalPos", 0) or pos.get("size", 0))
+                margin = open_val / cached_leverage if open_val > 0 else 0
+                roe = final_profit / margin if margin > 0 else 0
+                fields["杠杆"] = int(cached_leverage)
+                fields["收益率"] = roe
             
-            # 2. 如果没找到，且是 Binance，尝试去找对应的 "HOLDING" 记录进行合并
-            if not record_id and ex_name == "Binance":
-                holding_id = f"Binance_{pos['symbol']}_{pos['holdSide']}_HOLDING"
-                # 查缓存
-                if holding_id in feishu_cache:
-                    record_id = feishu_cache[holding_id].get("record_id")
-                    log_info(f"  [{ex_name}] 🔗 关联持仓记录: {holding_id} -> {unique_id}")
-                    # 清除 Holding 缓存，因为它变身了
-                    del feishu_cache[holding_id]
-                    
-                # 如果缓存也没，查飞书 (双保险)
-                if not record_id:
-                    record_id = feishu_client.find_record(holding_id)
-                    if record_id:
-                        log_info(f"  [{ex_name}] 🔗 发现远程持仓: {holding_id}")
-    
-            # 3. 如果还是没有，按常规 ID 查 (补录情况)
-            if not record_id: 
-                record_id = feishu_client.find_record(unique_id)
+            # === Step 5: 更新记录 ===
+            log_info(f"  [{ex_name}] 🔵 订单完结: {fields['币种']}")
+            if feishu_client.update_record(record_id, fields):
+                finalized_ids.add(unique_id)
             
-            if record_id:
-                log_info(f"  [{ex_name}] 🔵 订单完结: {fields['币种']}")
-                if feishu_client.update_record(record_id, fields): finalized_ids.add(unique_id)
-            else:
-                log_info(f"  [{ex_name}] 🟣 补录历史: {fields['币种']}")
-                if feishu_client.create_record(fields):
-                    # synced_ids.add(unique_id)
-                    finalized_ids.add(unique_id)
-            
-            # 频率限制保护: 飞书 API 创建记录通常有 5 QPS 限制
-            # 如果大量补录，必须暂停以防被封禁或卡死
             time.sleep(0.2)
+
                     
         # Save
         state["feishu_cache"] = feishu_cache
